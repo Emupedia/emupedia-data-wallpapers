@@ -10,7 +10,6 @@
 	"theme_color": "#008080",
 	"background_color": "#008080",
 	"start_url": "index.html",
-	"start_url": "index.html",
 	"serviceworker": {
 		"src": "sw.js"
 	},
