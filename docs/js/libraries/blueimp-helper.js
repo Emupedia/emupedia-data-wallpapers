@@ -13,7 +13,7 @@
 
 /* eslint-disable no-param-reassign */
 
-;(function() {
+;(function () {
   'use strict'
 
   /**
@@ -67,7 +67,7 @@
 
   Helper.extend = extend
 
-  Helper.contains = function(container, element) {
+  Helper.contains = function (container, element) {
     do {
       element = element.parentNode
       if (element === container) {
@@ -77,12 +77,12 @@
     return false
   }
 
-  Helper.parseJSON = function(string) {
-    return window.JSON && JSON.parse(string)
+  Helper.parseJSON = function (string) {
+    return JSON.parse(string)
   }
 
   extend(Helper.prototype, {
-    find: function(query) {
+    find: function (query) {
       var container = this[0] || document
       if (typeof query === 'string') {
         if (container.querySelectorAll) {
@@ -96,46 +96,59 @@
       return new Helper(query)
     },
 
-    hasClass: function(className) {
-      if (!this[0]) {
-        return false
-      }
-      return new RegExp('(^|\\s+)' + className + '(\\s+|$)').test(
+    hasClass: function (className) {
+      if (!this[0]) return false
+      return new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)').test(
         this[0].className
       )
     },
 
-    addClass: function(className) {
+    addClass: function (className) {
       var i = this.length
+      var classNames
       var element
+      var j
       while (i) {
         i -= 1
         element = this[i]
         if (!element.className) {
           element.className = className
-          return this
+          continue
         }
-        if (this.hasClass(className)) {
-          return this
+        if (!classNames) classNames = className.split(/\s+/)
+        for (j = 0; j < classNames.length; j += 1) {
+          if (this.hasClass(classNames[j])) {
+            continue
+          }
+          element.className += ' ' + classNames[j]
         }
-        element.className += ' ' + className
       }
       return this
     },
 
-    removeClass: function(className) {
-      var regexp = new RegExp('(^|\\s+)' + className + '(\\s+|$)')
+    removeClass: function (className) {
+      // Match any of the given class names
+      var regexp = new RegExp('^(?:' + className.split(/\s+/).join('|') + ')$')
+      // Match any class names and their trailing whitespace
+      var matcher = /(\S+)(?:\s+|$)/g
+      var replacer = function (match, className) {
+        // Replace class names that match the given ones
+        return regexp.test(className) ? '' : match
+      }
+      var trimEnd = /\s+$/
       var i = this.length
       var element
       while (i) {
         i -= 1
         element = this[i]
-        element.className = element.className.replace(regexp, ' ')
+        element.className = element.className
+          .replace(matcher, replacer)
+          .replace(trimEnd, '')
       }
       return this
     },
 
-    on: function(eventName, handler) {
+    on: function (eventName, handler) {
       var eventNames = eventName.split(/\s+/)
       var i
       var element
@@ -155,7 +168,7 @@
       return this
     },
 
-    off: function(eventName, handler) {
+    off: function (eventName, handler) {
       var eventNames = eventName.split(/\s+/)
       var i
       var element
@@ -175,7 +188,7 @@
       return this
     },
 
-    empty: function() {
+    empty: function () {
       var i = this.length
       var element
       while (i) {
@@ -188,13 +201,13 @@
       return this
     },
 
-    first: function() {
+    first: function () {
       return new Helper(this[0])
     }
   })
 
   if (typeof define === 'function' && define.amd) {
-    define(function() {
+    define(function () {
       return Helper
     })
   } else {

@@ -11,7 +11,7 @@
 
 /* global define, $f */
 
-;(function(factory) {
+;(function (factory) {
   'use strict'
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -20,29 +20,31 @@
     // Browser globals:
     factory(window.blueimp.helper || window.jQuery, window.blueimp.Gallery)
   }
-})(function($, Gallery) {
+})(function ($, Gallery) {
   'use strict'
 
   if (!window.postMessage) {
     return Gallery
   }
 
-  $.extend(Gallery.prototype.options, {
+  var galleryPrototype = Gallery.prototype
+
+  $.extend(galleryPrototype.options, {
     // The list object property (or data attribute) with the Vimeo video id:
     vimeoVideoIdProperty: 'vimeo',
     // The URL for the Vimeo video player, can be extended with custom parameters:
     // https://developer.vimeo.com/player/embedding
     vimeoPlayerUrl:
-      '//player.vimeo.com/video/VIDEO_ID?api=1&player_id=PLAYER_ID',
+      'https://player.vimeo.com/video/VIDEO_ID?api=1&player_id=PLAYER_ID',
     // The prefix for the Vimeo video player ID:
     vimeoPlayerIdPrefix: 'vimeo-player-',
     // Require a click on the native Vimeo player for the initial playback:
-    vimeoClickToPlay: true
+    vimeoClickToPlay: false
   })
 
   var textFactory =
-    Gallery.prototype.textFactory || Gallery.prototype.imageFactory
-  var VimeoPlayer = function(url, videoId, playerId, clickToPlay) {
+    galleryPrototype.textFactory || galleryPrototype.imageFactory
+  var VimeoPlayer = function (url, videoId, playerId, clickToPlay) {
     this.url = url
     this.videoId = videoId
     this.playerId = playerId
@@ -53,18 +55,14 @@
   var counter = 0
 
   $.extend(VimeoPlayer.prototype, {
-    canPlayType: function() {
-      return true
-    },
-
-    on: function(type, func) {
+    on: function (type, func) {
       this.listeners[type] = func
       return this
     },
 
-    loadAPI: function() {
+    loadAPI: function () {
       var that = this
-      var apiUrl = '//f.vimeocdn.com/js/froogaloop2.min.js'
+      var apiUrl = 'https://f.vimeocdn.com/js/froogaloop2.min.js'
       var scriptTags = document.getElementsByTagName('script')
       var i = scriptTags.length
       var scriptTag
@@ -97,17 +95,17 @@
       }
     },
 
-    onReady: function() {
+    onReady: function () {
       var that = this
       this.ready = true
-      this.player.addEvent('play', function() {
+      this.player.addEvent('play', function () {
         that.hasPlayed = true
         that.onPlaying()
       })
-      this.player.addEvent('pause', function() {
+      this.player.addEvent('pause', function () {
         that.onPause()
       })
-      this.player.addEvent('finish', function() {
+      this.player.addEvent('finish', function () {
         that.onPause()
       })
       if (this.playOnReady) {
@@ -115,29 +113,30 @@
       }
     },
 
-    onPlaying: function() {
+    onPlaying: function () {
       if (this.playStatus < 2) {
         this.listeners.playing()
         this.playStatus = 2
       }
     },
 
-    onPause: function() {
+    onPause: function () {
       this.listeners.pause()
       delete this.playStatus
     },
 
-    insertIframe: function() {
+    insertIframe: function () {
       var iframe = document.createElement('iframe')
       iframe.src = this.url
         .replace('VIDEO_ID', this.videoId)
         .replace('PLAYER_ID', this.playerId)
       iframe.id = this.playerId
+      iframe.allow = 'autoplay'
       this.element.parentNode.replaceChild(iframe, this.element)
       this.element = iframe
     },
 
-    play: function() {
+    play: function () {
       var that = this
       if (!this.playStatus) {
         this.listeners.play()
@@ -165,14 +164,14 @@
         } else if (!this.player) {
           this.insertIframe()
           this.player = $f(this.element)
-          this.player.addEvent('ready', function() {
+          this.player.addEvent('ready', function () {
             that.onReady()
           })
         }
       }
     },
 
-    pause: function() {
+    pause: function () {
       if (this.ready) {
         this.player.api('pause')
       } else if (this.playStatus) {
@@ -183,15 +182,15 @@
     }
   })
 
-  $.extend(Gallery.prototype, {
+  $.extend(galleryPrototype, {
     VimeoPlayer: VimeoPlayer,
 
-    textFactory: function(obj, callback) {
+    textFactory: function (obj, callback) {
       var options = this.options
       var videoId = this.getItemProperty(obj, options.vimeoVideoIdProperty)
       if (videoId) {
         if (this.getItemProperty(obj, options.urlProperty) === undefined) {
-          obj[options.urlProperty] = '//vimeo.com/' + videoId
+          obj[options.urlProperty] = 'https://vimeo.com/' + videoId
         }
         counter += 1
         return this.videoFactory(

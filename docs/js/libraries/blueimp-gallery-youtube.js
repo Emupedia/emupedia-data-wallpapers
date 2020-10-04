@@ -11,7 +11,7 @@
 
 /* global define, YT */
 
-;(function(factory) {
+;(function (factory) {
   'use strict'
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -20,14 +20,16 @@
     // Browser globals:
     factory(window.blueimp.helper || window.jQuery, window.blueimp.Gallery)
   }
-})(function($, Gallery) {
+})(function ($, Gallery) {
   'use strict'
 
   if (!window.postMessage) {
     return Gallery
   }
 
-  $.extend(Gallery.prototype.options, {
+  var galleryPrototype = Gallery.prototype
+
+  $.extend(galleryPrototype.options, {
     // The list object property (or data attribute) with the YouTube video id:
     youTubeVideoIdProperty: 'youtube',
     // Optional object with parameters passed to the YouTube video player:
@@ -36,12 +38,12 @@
       wmode: 'transparent'
     },
     // Require a click on the native YouTube player for the initial playback:
-    youTubeClickToPlay: true
+    youTubeClickToPlay: false
   })
 
   var textFactory =
-    Gallery.prototype.textFactory || Gallery.prototype.imageFactory
-  var YouTubePlayer = function(videoId, playerVars, clickToPlay) {
+    galleryPrototype.textFactory || galleryPrototype.imageFactory
+  var YouTubePlayer = function (videoId, playerVars, clickToPlay) {
     this.videoId = videoId
     this.playerVars = playerVars
     this.clickToPlay = clickToPlay
@@ -50,23 +52,19 @@
   }
 
   $.extend(YouTubePlayer.prototype, {
-    canPlayType: function() {
-      return true
-    },
-
-    on: function(type, func) {
+    on: function (type, func) {
       this.listeners[type] = func
       return this
     },
 
-    loadAPI: function() {
+    loadAPI: function () {
       var that = this
       var onYouTubeIframeAPIReady = window.onYouTubeIframeAPIReady
-      var apiUrl = '//www.youtube.com/iframe_api'
+      var apiUrl = 'https://www.youtube.com/iframe_api'
       var scriptTags = document.getElementsByTagName('script')
       var i = scriptTags.length
       var scriptTag
-      window.onYouTubeIframeAPIReady = function() {
+      window.onYouTubeIframeAPIReady = function () {
         if (onYouTubeIframeAPIReady) {
           onYouTubeIframeAPIReady.apply(this)
         }
@@ -85,55 +83,57 @@
       scriptTags[0].parentNode.insertBefore(scriptTag, scriptTags[0])
     },
 
-    onReady: function() {
+    onReady: function () {
       this.ready = true
       if (this.playOnReady) {
         this.play()
       }
     },
 
-    onPlaying: function() {
+    onPlaying: function () {
       if (this.playStatus < 2) {
         this.listeners.playing()
         this.playStatus = 2
       }
     },
 
-    onPause: function() {
-      Gallery.prototype.setTimeout.call(this, this.checkSeek, null, 2000)
+    onPause: function () {
+      this.listeners.pause()
+      delete this.playStatus
     },
 
-    checkSeek: function() {
-      if (
-        this.stateChange === YT.PlayerState.PAUSED ||
-        this.stateChange === YT.PlayerState.ENDED
-      ) {
-        // check if current state change is actually paused
-        this.listeners.pause()
-        delete this.playStatus
-      }
-    },
-
-    onStateChange: function(event) {
+    onStateChange: function (event) {
+      window.clearTimeout(this.pauseTimeout)
       switch (event.data) {
         case YT.PlayerState.PLAYING:
           this.hasPlayed = true
           this.onPlaying()
           break
+        case YT.PlayerState.UNSTARTED:
         case YT.PlayerState.PAUSED:
+          // YouTube sends an unstarted event if pause is triggered before the
+          // video has started.
+          // YouTube sends a pause event when seeking.
+          // In both cases, we initiate a pause in a timeout that gets cleared
+          // if followed by another event within the timeout window.
+          this.pauseTimeout = galleryPrototype.setTimeout.call(
+            this,
+            this.onPause,
+            null,
+            500
+          )
+          break
         case YT.PlayerState.ENDED:
           this.onPause()
           break
       }
-      // Save most recent state change to this.stateChange
-      this.stateChange = event.data
     },
 
-    onError: function(event) {
+    onError: function (event) {
       this.listeners.error(event)
     },
 
-    play: function() {
+    play: function () {
       var that = this
       if (!this.playStatus) {
         this.listeners.play()
@@ -163,13 +163,13 @@
             videoId: this.videoId,
             playerVars: this.playerVars,
             events: {
-              onReady: function() {
+              onReady: function () {
                 that.onReady()
               },
-              onStateChange: function(event) {
+              onStateChange: function (event) {
                 that.onStateChange(event)
               },
-              onError: function(event) {
+              onError: function (event) {
                 that.onError(event)
               }
             }
@@ -178,7 +178,7 @@
       }
     },
 
-    pause: function() {
+    pause: function () {
       if (this.ready) {
         this.player.pauseVideo()
       } else if (this.playStatus) {
@@ -189,21 +189,22 @@
     }
   })
 
-  $.extend(Gallery.prototype, {
+  $.extend(galleryPrototype, {
     YouTubePlayer: YouTubePlayer,
 
-    textFactory: function(obj, callback) {
+    textFactory: function (obj, callback) {
       var options = this.options
       var videoId = this.getItemProperty(obj, options.youTubeVideoIdProperty)
       if (videoId) {
         if (this.getItemProperty(obj, options.urlProperty) === undefined) {
-          obj[options.urlProperty] = '//www.youtube.com/watch?v=' + videoId
+          obj[options.urlProperty] =
+            'https://www.youtube.com/watch?v=' + videoId
         }
         if (
           this.getItemProperty(obj, options.videoPosterProperty) === undefined
         ) {
           obj[options.videoPosterProperty] =
-            '//img.youtube.com/vi/' + videoId + '/maxresdefault.jpg'
+            'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg'
         }
         return this.videoFactory(
           obj,

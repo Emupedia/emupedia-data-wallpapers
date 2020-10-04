@@ -11,7 +11,7 @@
 
 /* global define */
 
-;(function(factory) {
+;(function (factory) {
   'use strict'
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -20,19 +20,21 @@
     // Browser globals:
     factory(window.blueimp.helper || window.jQuery, window.blueimp.Gallery)
   }
-})(function($, Gallery) {
+})(function ($, Gallery) {
   'use strict'
 
-  $.extend(Gallery.prototype.options, {
+  var galleryPrototype = Gallery.prototype
+
+  $.extend(galleryPrototype.options, {
     // Defines if the gallery should open in fullscreen mode:
-    fullScreen: false
+    fullscreen: false
   })
 
-  var initialize = Gallery.prototype.initialize
-  var close = Gallery.prototype.close
+  var initialize = galleryPrototype.initialize
+  var close = galleryPrototype.close
 
-  $.extend(Gallery.prototype, {
-    getFullScreenElement: function() {
+  $.extend(galleryPrototype, {
+    getFullScreenElement: function () {
       return (
         document.fullscreenElement ||
         document.webkitFullscreenElement ||
@@ -41,7 +43,7 @@
       )
     },
 
-    requestFullScreen: function(element) {
+    requestFullScreen: function (element) {
       if (element.requestFullscreen) {
         element.requestFullscreen()
       } else if (element.webkitRequestFullscreen) {
@@ -53,7 +55,7 @@
       }
     },
 
-    exitFullScreen: function() {
+    exitFullScreen: function () {
       if (document.exitFullscreen) {
         document.exitFullscreen()
       } else if (document.webkitCancelFullScreen) {
@@ -65,14 +67,14 @@
       }
     },
 
-    initialize: function() {
+    initialize: function () {
       initialize.call(this)
-      if (this.options.fullScreen && !this.getFullScreenElement()) {
+      if (this.options.fullscreen && !this.getFullScreenElement()) {
         this.requestFullScreen(this.container[0])
       }
     },
 
-    close: function() {
+    close: function () {
       if (this.getFullScreenElement() === this.container[0]) {
         this.exitFullScreen()
       }

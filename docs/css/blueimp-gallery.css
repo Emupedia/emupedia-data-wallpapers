@@ -1,5 +1,18 @@
+@charset "UTF-8";
+/*
+ * blueimp Gallery CSS
+ * https://github.com/blueimp/Gallery
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * https://opensource.org/licenses/MIT
+ */
+
 .blueimp-gallery,
-.blueimp-gallery > .slides > .slide > .slide-content {
+.blueimp-gallery > .slides > .slide > .slide-content,
+.blueimp-gallery > .slides > .slide > .slide-content > img {
 	position: absolute;
 	top: 0;
 	right: 0;
@@ -15,7 +28,8 @@
 	-moz-backface-visibility: hidden;
 }
 
-.blueimp-gallery > .slides > .slide > .slide-content {
+.blueimp-gallery > .slides > .slide > .slide-content,
+.blueimp-gallery > .slides > .slide > .slide-content > img {
 	margin: auto;
 	width: auto;
 	height: auto;
@@ -29,12 +43,11 @@
 	z-index: 999999;
 	overflow: hidden;
 	background: #000;
-	background: rgba(0, 0, 0, 0.9);
 	opacity: 0;
 	display: none;
 	direction: ltr;
-	-ms-touch-action: none;
-	touch-action: none;
+	-ms-touch-action: pinch-zoom;
+	touch-action: pinch-zoom;
 }
 
 .blueimp-gallery-carousel {
@@ -43,9 +56,10 @@
 	margin: 1em auto;
 	/* Set the carousel width/height ratio to 16/9: */
 	padding-bottom: 56.25%;
-	box-shadow: 0 0 10px #000;
-	-ms-touch-action: pan-y;
-	touch-action: pan-y;
+	box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+	-ms-touch-action: pan-y pinch-zoom;
+	touch-action: pan-y pinch-zoom;
+	display: block;
 }
 
 .blueimp-gallery-display {
@@ -64,6 +78,7 @@
 }
 
 .blueimp-gallery > .slides > .slide {
+	visibility: hidden;
 	position: relative;
 	float: left;
 	height: 100%;
@@ -75,9 +90,19 @@
 	transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
+.blueimp-gallery > .slides > .slide-prev,
+.blueimp-gallery > .slides > .slide-active,
+.blueimp-gallery > .slides > .slide-next {
+	visibility: visible;
+}
+
 .blueimp-gallery > .slides > .slide-loading {
 	background: url(../images/loading.gif) center no-repeat;
 	background-size: 64px 64px;
+}
+
+.blueimp-gallery-smil > .slides > .slide-loading {
+	background-image: url(../images/loading.svg);
 }
 
 .blueimp-gallery > .slides > .slide-loading > .slide-content {
@@ -88,51 +113,72 @@
 	background: url(../images/error.png) center no-repeat;
 }
 
+.blueimp-gallery-svgasimg > .slides > .slide-error {
+	background-image: url(../images/error.svg);
+}
+
 .blueimp-gallery > .slides > .slide-error > .slide-content {
 	display: none;
 }
 
-/*noinspection DuplicatedCode*/
-.blueimp-gallery > .prev, .blueimp-gallery > .next {
+.blueimp-gallery-display > .prev,
+.blueimp-gallery-display > .next {
 	position: absolute;
 	top: 50%;
 	left: 15px;
-	width: 40px;
-	height: 40px;
+	width: 8px;
+	height: 20px;
+	padding: 10px 14px 10px 18px;
 	margin-top: -23px;
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-size: 60px;
-	font-weight: 100;
-	line-height: 30px;
-	color: #fff;
-	text-decoration: none;
-	text-shadow: 0 0 2px #000;
-	text-align: center;
-	background: #222;
-	background: rgba(0, 0, 0, 0.5);
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
+	background: #222 url(../images/prev.png) center no-repeat;
+	background-color: rgba(0, 0, 0, 0.5);
 	border: 3px solid #fff;
-	-webkit-border-radius: 23px;
-	-moz-border-radius: 23px;
-	border-radius: 23px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
 	opacity: 0.5;
 	cursor: pointer;
 	display: none;
 }
 
-.blueimp-gallery > .next {
-	left: auto;
+.blueimp-gallery-display > .next {
 	right: 15px;
+	left: auto;
+	background-image: url(../images/next.png);
 }
 
-.blueimp-gallery > .close,
+.blueimp-gallery-svgasimg > .prev {
+	background-image: url(../images/prev.svg);
+}
+
+.blueimp-gallery-svgasimg > .next {
+	background-image: url(../images/next.svg);
+}
+
+.blueimp-gallery-display > .close {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	width: 30px;
+	height: 30px;
+	background: url(../images/close.png) center no-repeat;
+	opacity: 0.8;
+	cursor: pointer;
+	display: none;
+}
+
+.blueimp-gallery-svgasimg > .close {
+	background-image: url(../images/close.svg);
+}
+
 .blueimp-gallery > .title {
 	position: absolute;
 	top: 15px;
 	left: 15px;
-	margin: 0 40px 0 0;
+	margin: 0 60px 0 0;
 	font-size: 20px;
 	line-height: 30px;
 	color: #fff;
@@ -141,30 +187,24 @@
 	display: none;
 }
 
-.blueimp-gallery > .close {
-	padding: 15px;
-	right: 15px;
-	left: auto;
-	margin: -15px;
-	font-size: 30px;
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.blueimp-gallery > .play-pause {
+.blueimp-gallery-display > .play-pause {
 	position: absolute;
 	right: 15px;
 	bottom: 15px;
-	width: 15px;
-	height: 15px;
+	width: 30px;
+	height: 30px;
 	background: url(../images/play-pause.png) 0 0 no-repeat;
 	cursor: pointer;
 	opacity: 0.5;
 	display: none;
 }
 
+.blueimp-gallery-svgasimg > .play-pause {
+	background-image: url(../images/play-pause.svg);
+}
+
 .blueimp-gallery-playing > .play-pause {
-	background-position: -15px 0;
+	background-position: -30px 0;
 }
 
 .blueimp-gallery-controls > .prev,
@@ -210,22 +250,6 @@
 	opacity: 1;
 }
 
-/* Replace PNGs with SVGs for capable browsers (excluding IE<9) */
-body:last-child .blueimp-gallery > .slides > .slide-error {
-	background-image: url(../images/error.svg);
-}
-
-body:last-child .blueimp-gallery > .play-pause {
-	width: 20px;
-	height: 20px;
-	background-size: 40px 20px;
-	background-image: url(../images/play-pause.svg);
-}
-
-body:last-child .blueimp-gallery-playing > .play-pause {
-	background-position: -20px 0;
-}
-
 /* IE7 fixes */
 * + html .blueimp-gallery > .slides > .slide {
 	min-height: 300px;
@@ -233,4 +257,23 @@ body:last-child .blueimp-gallery-playing > .play-pause {
 
 * + html .blueimp-gallery > .slides > .slide > .slide-content {
 	position: relative;
+}
+
+* + html .blueimp-gallery > .slides > .slide > .slide-content > img {
+	position: relative;
+}
+
+@supports (object-fit: contain) {
+	.blueimp-gallery-contain > .slides > .slide > .slide-content,
+	.blueimp-gallery-contain > .slides > .slide > .slide-content > img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	.blueimp-gallery-carousel {
+		background: #fff;
+	}
 }

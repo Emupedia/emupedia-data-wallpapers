@@ -1,0 +1,24 @@
+{
+  "name": "emuwallpapers",
+  "productName": "EmuWallpapers",
+  "version": "1.0.0",
+  "author": {
+    "name": "Emupedia",
+    "email": "contact@emupedia.net",
+    "url": "https://emupedia.net"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "description": "Wallpapers used in various Emupedia products.",
+  "homepage": "https://wallpapers.emupedia.net",
+  "bugs": {
+    "url": "https://github.com/Emupedia/emuwallpapers/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emupedia/emuwallpapers.git"
+  },
+  "dependencies": {
+    "mime": "^2.4.6"
+  }
+}
