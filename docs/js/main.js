@@ -23,7 +23,7 @@ $(function () {
 					.attr('data-type', 'video')
 					.attr('data-sources', "{\"type\": \"" + val.mime_type +"\", \"src\": \"" + val.path + "\"}");
 
-					var v =  $('<video width="200" height="200" autoplay="autoplay" muted="muted"><source src="' + val.path + '" type="' + val.mime_type + '" /></video>');
+					var v =  $('<video width="200" height="200" autoplay="autoplay" muted="muted" loop="loop"><source src="' + val.path + '" type="' + val.mime_type + '" /></video>');
 
 					el.append(v);
 				} else {
