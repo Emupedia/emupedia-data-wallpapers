@@ -12,7 +12,7 @@ $(function () {
 			$.each(val.children, function (i, val) {
 				var el = $('<a/>');
 				el.attr('href', val.path)
-				// .attr('loading', 'lazy')
+				.attr('loading', 'lazy')
 				.attr('title', val.name
 				.replace(/-/g, ' ')
 				.replace(/\.[^/.]+$/, ''))
